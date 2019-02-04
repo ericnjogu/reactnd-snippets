@@ -5,7 +5,7 @@ function todos(state = [], action) {
     return state
 }
 
-function createStore() {
+function createStore(reducer) {
     // variables whose value can change are declared by the let keyword in ES6
     let state
     let listeners = []
@@ -19,12 +19,18 @@ function createStore() {
             listeners = listeners.filter((l) => l !== listener)
         }
     }
+
+    const dispatch = (action) => {
+        state = reducer(state, action)
+        listeners.map(listener => listener())
+    }
+
     // returns an object whose two props are functions
-    return {getState, subscribe}
+    return {getState, subscribe, dispatch}
 }
 
 // two subscribers each returning a ref to an unsubscriber function
-const store = createStore()
+const store = createStore(todos)
 unsub1 = store.subscribe(()=> {
     console.log(`Listener 1: The new state is ${store.getState}`)
 })
