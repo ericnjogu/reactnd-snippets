@@ -1,3 +1,10 @@
+function todos(state = [], action) {
+    if (action.type === 'ADD') {
+        state = state.concat(action.todo)
+    }
+    return state
+}
+
 function createStore() {
     // variables whose value can change are declared by the let keyword in ES6
     let state
