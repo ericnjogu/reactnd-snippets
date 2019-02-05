@@ -24,10 +24,21 @@ function createStore(reducer) {
 
 // pure function (reducer) to modify and return new state
 function todos(state = [], action) {
-    if (action.type === 'ADD') {
-        state = state.concat(action.todo)
+    switch (action.type) {
+        case 'ADD':
+            return state = state.concat(action.todo)
+        case 'REMOVE':
+            return state.filter(todo => todo.id !== action.id)
+        case 'TOGGLE':
+            return state.map(todo => {
+                if (todo.id === action.id) {
+                    todo.complete = !todo.complete
+                }
+                return todo
+            })
+        default:
+            return state
     }
-    return state
 }
 
 // two subscribers each returning a ref to an unsubscriber function
@@ -44,7 +55,8 @@ store.dispatch({
     type: 'ADD',
     todo: {
         id:1,
-        title: 'Run 40k'
+        title: 'Run 40k',
+        complete: false
     }
 })
 
@@ -54,8 +66,19 @@ store.dispatch({
     type: 'ADD',
     todo: {
         id:2,
-        title: 'Run 10k'
+        title: 'Run 10k',
+        complete: false
     }
 })
 
 console.log(`the state is now ${JSON.stringify(store.getState())}`)
+
+store.dispatch({
+    type:'REMOVE',
+    id:1
+})
+
+store.dispatch({
+    type:'TOGGLE',
+    id:2
+})
