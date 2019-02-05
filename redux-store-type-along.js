@@ -22,15 +22,19 @@ function createStore(reducer) {
     return {getState, subscribe, dispatch}
 }
 
+const ADD_TODO = 'ADD_TODO';
+const REMOVE_TODO = 'REMOVE_TODO'
+const TOGGLE_TODO = 'TOGGLE_TODO'
+
 // pure function (reducer) to modify and return new state
 function todos(state = [], action) {
     console.log('todos() called')
     switch (action.type) {
-        case 'ADD_TODO':
+        case ADD_TODO:
             return state = state.concat(action.todo)
-        case 'REMOVE_TODO':
+        case REMOVE_TODO:
             return state.filter(todo => todo.id !== action.id)
-        case 'TOGGLE_TODO':
+        case TOGGLE_TODO:
             return state.map(todo => {
                 if (todo.id === action.id) {
                     todo.complete = !todo.complete
@@ -42,13 +46,16 @@ function todos(state = [], action) {
     }
 }
 
+const ADD_GOAL = 'ADD_GOAL'
+const REMOVE_GOAL = 'REMOVE_GOAL'
+
 // pure function (reducer) to modify and return new state
 function goals(state = [], action) {
     console.log('goals() called')
     switch (action.type) {
-        case 'ADD_GOAL':
+        case ADD_GOAL:
             return state = state.concat(action.goal)
-        case 'REMOVE_GOAL':
+        case REMOVE_GOAL:
             return state.filter(goal => goal.id !== action.id)
         default:
             return state
@@ -75,7 +82,7 @@ unsub2 = store.subscribe(()=> {
 */
 
 store.dispatch({
-    type: 'ADD_TODO',
+    type: ADD_TODO,
     todo: {
         id:1,
         title: 'Run 40k',
@@ -84,7 +91,7 @@ store.dispatch({
 })
 
 store.dispatch({
-    type: 'ADD_GOAL',
+    type: ADD_GOAL,
     goal: {
         id:1,
         title: 'Eat well',
