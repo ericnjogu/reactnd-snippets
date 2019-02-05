@@ -1,10 +1,3 @@
-function todos(state = [], action) {
-    if (action.type === 'ADD') {
-        state = state.concat(action.todo)
-    }
-    return state
-}
-
 function createStore(reducer) {
     // variables whose value can change are declared by the let keyword in ES6
     let state
@@ -29,12 +22,40 @@ function createStore(reducer) {
     return {getState, subscribe, dispatch}
 }
 
+// pure function (reducer) to modify and return new state
+function todos(state = [], action) {
+    if (action.type === 'ADD') {
+        state = state.concat(action.todo)
+    }
+    return state
+}
+
 // two subscribers each returning a ref to an unsubscriber function
 const store = createStore(todos)
 unsub1 = store.subscribe(()=> {
-    console.log(`Listener 1: The new state is ${store.getState}`)
+    console.log(`Listener 1: The new state is ${store.getState()}`)
 })
 
 unsub2 = store.subscribe(()=> {
-    console.log(`Listener 2: The new state is ${store.getState}`)
+    console.log(`Listener 2: The new state is ${store.getState()}`)
 })
+
+store.dispatch({
+    type: 'ADD',
+    todo: {
+        id:1,
+        title: 'Run 40k'
+    }
+})
+
+unsub1();
+
+store.dispatch({
+    type: 'ADD',
+    todo: {
+        id:2,
+        title: 'Run 10k'
+    }
+})
+
+console.log(`the state is now ${store.getState()}`)
