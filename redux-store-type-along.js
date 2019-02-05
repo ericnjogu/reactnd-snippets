@@ -33,11 +33,11 @@ function todos(state = [], action) {
 // two subscribers each returning a ref to an unsubscriber function
 const store = createStore(todos)
 unsub1 = store.subscribe(()=> {
-    console.log(`Listener 1: The new state is ${store.getState()}`)
+    console.log(`Listener 1: The new state is ${JSON.stringify(store.getState())}`)
 })
 
 unsub2 = store.subscribe(()=> {
-    console.log(`Listener 2: The new state is ${store.getState()}`)
+    console.log(`Listener 2: The new state is ${JSON.stringify(store.getState())}`)
 })
 
 store.dispatch({
@@ -58,4 +58,4 @@ store.dispatch({
     }
 })
 
-console.log(`the state is now ${store.getState()}`)
+console.log(`the state is now ${JSON.stringify(store.getState())}`)
