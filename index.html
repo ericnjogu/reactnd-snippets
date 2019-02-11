@@ -5,108 +5,156 @@
     <title>My TODO & Goals</title>
 </head>
 <body>
-<script type="text/javascript">
-    function createStore(reducer) {
-        // variables whose value can change are declared by the let keyword in ES6
-        let state
-        let listeners = []
+    <div>
+        <h3>Todos</h3>
+        <input id="todo" type="text" placeholder="Add TODO"/>
+        <button id="todoBtn">Add Todo</button>
+        <ul id="todos"></ul>
+    </div>
+    <div>
+        <h3>Goals</h3>
+        <input id="goal" type="text" placeholder="Add Goal"/>
+        <button id="goalBtn">Add Goal</button>
+        <ul id="goals"></ul>
+    </div>
 
-        // functions are declared by the const keyword since their value will not be modified
-        const getState = () => state
+    <script type="text/javascript">
+        function generateId() {
+            return Math.random().toString(36).substring(2) + new Date().getTime().toString(36)
+        }
 
-        const subscribe = (listener) => {
-            listeners.push(listener)
-            return () => {
-                listeners = listeners.filter((l) => l !== listener)
+        function createStore(reducer) {
+            // variables whose value can change are declared by the let keyword in ES6
+            let state
+            let listeners = []
+
+            // functions are declared by the const keyword since their value will not be modified
+            const getState = () => state
+
+            const subscribe = (listener) => {
+                listeners.push(listener)
+                return () => {
+                    listeners = listeners.filter((l) => l !== listener)
+                }
+            }
+
+            const dispatch = (action) => {
+                state = reducer(state, action)
+                listeners.map(listener => listener())
+            }
+
+            // returns an object whose two props are functions
+            return {getState, subscribe, dispatch}
+        }
+
+        const ADD_TODO = 'ADD_TODO';
+        const REMOVE_TODO = 'REMOVE_TODO'
+        const TOGGLE_TODO = 'TOGGLE_TODO'
+
+        // pure function (reducer) to modify and return new state
+        function todos(state = [], action) {
+            //console.log('todos() called')
+            switch (action.type) {
+                case ADD_TODO:
+                    return state = state.concat(action.todo)
+                case REMOVE_TODO:
+                    return state.filter(todo => todo.id !== action.id)
+                case TOGGLE_TODO:
+                    return state.map(todo => {
+                        if (todo.id === action.id) {
+                            todo.complete = !todo.complete
+                        }
+                        return todo
+                    })
+                default:
+                    return state
             }
         }
 
-        const dispatch = (action) => {
-            state = reducer(state, action)
-            listeners.map(listener => listener())
+        const ADD_GOAL = 'ADD_GOAL'
+        const REMOVE_GOAL = 'REMOVE_GOAL'
+
+        // pure function (reducer) to modify and return new state
+        function goals(state = [], action) {
+            //console.log('goals() called')
+            switch (action.type) {
+                case ADD_GOAL:
+                    return state = state.concat(action.goal)
+                case REMOVE_GOAL:
+                    return state.filter(goal => goal.id !== action.id)
+                default:
+                    return state
+            }
         }
 
-        // returns an object whose two props are functions
-        return {getState, subscribe, dispatch}
-    }
-
-    const ADD_TODO = 'ADD_TODO';
-    const REMOVE_TODO = 'REMOVE_TODO'
-    const TOGGLE_TODO = 'TOGGLE_TODO'
-
-    // pure function (reducer) to modify and return new state
-    function todos(state = [], action) {
-        console.log('todos() called')
-        switch (action.type) {
-            case ADD_TODO:
-                return state = state.concat(action.todo)
-            case REMOVE_TODO:
-                return state.filter(todo => todo.id !== action.id)
-            case TOGGLE_TODO:
-                return state.map(todo => {
-                    if (todo.id === action.id) {
-                        todo.complete = !todo.complete
-                    }
-                    return todo
-                })
-            default:
-                return state
+        function app(state={}, action) {
+            return {
+                todos: todos(state.todos, action),
+                goals: goals(state.goals, action)
+            }
         }
-    }
 
-    const ADD_GOAL = 'ADD_GOAL'
-    const REMOVE_GOAL = 'REMOVE_GOAL'
+        const store = createStore(app)
 
-    // pure function (reducer) to modify and return new state
-    function goals(state = [], action) {
-        console.log('goals() called')
-        switch (action.type) {
-            case ADD_GOAL:
-                return state = state.concat(action.goal)
-            case REMOVE_GOAL:
-                return state.filter(goal => goal.id !== action.id)
-            default:
-                return state
+        unsub1 = store.subscribe(()=> {
+            document.getElementById('todos').innerHTML = ''
+            document.getElementById('goals').innerHTML = ''
+
+            const {goals, todos} = store.getState()
+            todos.forEach(addToDoToUi)
+            goals.forEach(addGoalToUi)
+        })
+
+        function addTodo() {
+            const input = document.getElementById('todo');
+            const todo = input.value
+            store.dispatch({
+                type: ADD_TODO,
+                todo: {
+                    id:generateId(),
+                    title: todo,
+                    complete: false
+                }
+            })
+            input.value = ''
+
         }
-    }
 
-    function app(state={}, action) {
-        return {
-            todos: todos(state.todos, action),
-            goals: goals(state.goals, action)
+        function addGoal() {
+            const input = document.getElementById('goal');
+            const goal = input.value
+            store.dispatch({
+                type: ADD_GOAL,
+                goal: {
+                    id:generateId(),
+                    title: goal,
+                    complete: false
+                }
+            })
+            input.value = ''
+
         }
-    }
 
-    // two subscribers each returning a ref to an unsubscriber function
-    const store = createStore(app)
-    unsub1 = store.subscribe(()=> {
-        console.log(`Listener 1: The new state is ${JSON.stringify(store.getState())}`)
-    })
+        document.getElementById('todoBtn').addEventListener('click', addTodo)
+        document.getElementById('goalBtn').addEventListener('click', addGoal)
 
-    /*
-    unsub2 = store.subscribe(()=> {
-        console.log(`Listener 2: The new state is ${JSON.stringify(store.getState())}`)
-    })
-    */
-
-    store.dispatch({
-        type: ADD_TODO,
-        todo: {
-            id:1,
-            title: 'Run 40k',
-            complete: false
+        function addToUi(text, listId) {
+            const li = document.createElement('li')
+            const txt = document.createTextNode(text)
+            li.appendChild(txt)
+            document.getElementById(listId).appendChild(li)
         }
-    })
 
-    store.dispatch({
-        type: ADD_GOAL,
-        goal: {
-            id:1,
-            title: 'Eat well',
-            complete: false
+        function addToDoToUi(todo) {
+            addToUi(todo.title, 'todos')
         }
-    })
-</script>
+
+        function addGoalToUi(goal) {
+            addToUi(goal.title, 'goals')
+        }
+
+
+    </script>
 
 </body>
 </html>
