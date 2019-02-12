@@ -142,39 +142,68 @@
         document.getElementById('goalBtn').addEventListener('click', addGoal)
 
         function toggleTodo() {
-            const id = this.id
+            const id = this.parentElement.id
             store.dispatch({
                 type: TOGGLE_TODO,
                 id:id
             })
         }
 
+        function removeTodo() {
+            const id = this.parentElement.id
+            store.dispatch({
+                type: REMOVE_TODO,
+                id:id
+            })
+        }
+
+
         function toggleGoal() {
-            const id = this.id
+            const id = this.parentElement.id
             store.dispatch({
                 type: TOGGLE_GOAL,
                 id:id
             })
         }
 
-        function addToUi(item, listId, toggleHandler) {
+        function removeGoal() {
+            const id = this.parentElement.id
+            store.dispatch({
+                type: REMOVE_GOAL,
+                id:id
+            })
+        }
+
+        function addToUi(item, listId, toggleHandler, removeHandler) {
             const li = document.createElement('li')
             if (item.complete) {
                 li.setAttribute('style', 'text-decoration:line-through')
             }
-            li.id = item.id
+
             li.addEventListener('click', toggleHandler)
             const txt = document.createTextNode(item.title)
             li.appendChild(txt)
-            document.getElementById(listId).appendChild(li)
+
+            const btn = document.createElement('button');
+            btn.appendChild(document.createTextNode('xXx'))
+            btn.addEventListener('click', removeHandler)
+
+            const div = document.createElement('div')
+            // credit - https://stackoverflow.com/a/24504887/315385
+            div.setAttribute('style', 'display: inline-block')
+            div.id = item.id
+            div.appendChild(li)
+            div.appendChild(btn)
+
+            document.getElementById(listId).appendChild(div)
         }
 
         function addToDoToUi(todo) {
-            addToUi(todo, 'todos', toggleTodo)
+            addToUi(todo, 'todos', toggleTodo, removeTodo)
         }
 
         function addGoalToUi(goal) {
-            addToUi(goal, 'goals', toggleGoal)
+            addToUi(goal, 'goals', toggleGoal, removeGoal)
         }
 
 
