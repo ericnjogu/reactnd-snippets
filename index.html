@@ -73,6 +73,7 @@
 
         const ADD_GOAL = 'ADD_GOAL'
         const REMOVE_GOAL = 'REMOVE_GOAL'
+        const TOGGLE_GOAL = 'TOGGLE_GOAL'
 
         // pure function (reducer) to modify and return new state
         function goals(state = [], action) {
@@ -82,6 +83,8 @@
                     return state = state.concat(action.goal)
                 case REMOVE_GOAL:
                     return state.filter(goal => goal.id !== action.id)
+                case TOGGLE_GOAL:
+                    return state.map(goal => goal.id === action.id ? Object.assign({}, goal, {complete: !goal.complete}) : goal)
                 default:
                     return state
             }
@@ -138,19 +141,40 @@
         document.getElementById('todoBtn').addEventListener('click', addTodo)
         document.getElementById('goalBtn').addEventListener('click', addGoal)
 
-        function addToUi(text, listId) {
+        function toggleTodo() {
+            const id = this.id
+            store.dispatch({
+                type: TOGGLE_TODO,
+                id:id
+            })
+        }
+
+        function toggleGoal() {
+            const id = this.id
+            store.dispatch({
+                type: TOGGLE_GOAL,
+                id:id
+            })
+        }
+
+        function addToUi(item, listId, toggleHandler) {
             const li = document.createElement('li')
-            const txt = document.createTextNode(text)
+            if (item.complete) {
+                li.setAttribute('style', 'text-decoration:line-through')
+            }
+            li.id = item.id
+            li.addEventListener('click', toggleHandler)
+            const txt = document.createTextNode(item.title)
             li.appendChild(txt)
             document.getElementById(listId).appendChild(li)
         }
 
         function addToDoToUi(todo) {
-            addToUi(todo.title, 'todos')
+            addToUi(todo, 'todos', toggleTodo)
         }
 
         function addGoalToUi(goal) {
-            addToUi(goal.title, 'goals')
+            addToUi(goal, 'goals', toggleGoal)
         }
 
 
