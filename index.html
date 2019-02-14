@@ -67,7 +67,7 @@
             }
         }
 
-        const store = Redux.createStore(Redux.combineReducers({todos, goals}))
+        const store = Redux.createStore(Redux.combineReducers({todos, goals}), Redux.applyMiddleware(checker))
 
         unsub1 = store.subscribe(()=> {
             document.getElementById('todos').innerHTML = ''
@@ -81,7 +81,7 @@
         function addTodo() {
             const input = document.getElementById('todo');
             const todo = input.value
-            checkAndDispatch(store, {
+            store.dispatch({
                 type: ADD_TODO,
                 todo: {
                     id:generateId(),
@@ -96,7 +96,7 @@
         function addGoal() {
             const input = document.getElementById('goal');
             const goal = input.value
-            checkAndDispatch(store, {
+            store.dispatch({
                 type: ADD_GOAL,
                 goal: {
                     id:generateId(),
@@ -113,7 +113,7 @@
 
         function toggleTodo() {
             const id = this.parentElement.id
-            checkAndDispatch(store, {
+            store.dispatch({
                 type: TOGGLE_TODO,
                 id:id
             })
@@ -121,7 +121,7 @@
 
         function removeTodo() {
             const id = this.parentElement.id
-            checkAndDispatch(store, {
+            store.dispatch({
                 type: REMOVE_TODO,
                 id:id
             })
@@ -130,7 +130,7 @@
 
         function toggleGoal() {
             const id = this.parentElement.id
-            checkAndDispatch(store, {
+            store.dispatch({
                 type: TOGGLE_GOAL,
                 id:id
             })
@@ -138,7 +138,7 @@
 
         function removeGoal() {
             const id = this.parentElement.id
-            checkAndDispatch(store, {
+            store.dispatch({
                 type: REMOVE_GOAL,
                 id:id
             })
@@ -174,12 +174,17 @@
             addToUi(goal, 'goals', toggleGoal, removeGoal)
         }
 
-        function checkAndDispatch(store, action) {
-            const checkGun = (item) => item.title.toLowerCase().includes("gun")
-            let hasGun = action.type === ADD_TODO ? checkGun(action.todo) : false
-            hasGun = hasGun || action.type === ADD_GOAL ? checkGun(action.goal) : false
+        function checker() {
+            return function (next) {
+                return function (action) {
+                    const checkGun = (item) => item.title.toLowerCase().includes("gun")
+                    let hasGun = action.type === ADD_TODO ? checkGun(action.todo) : false
+                    hasGun = hasGun || action.type === ADD_GOAL ? checkGun(action.goal) : false
 
-            hasGun ? window.status = "Guns not allowed" : store.dispatch(action)
+                    return hasGun ? window.status = "Guns not allowed" : next(action)
+                }
+            }
+
         }
 
 
