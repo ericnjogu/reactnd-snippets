@@ -67,6 +67,14 @@
             }
         }
 
+        const checker = (store) => (next) => (action) => {
+            const checkGun = (item) => item.title.toLowerCase().includes("gun")
+            let hasGun = action.type === ADD_TODO ? checkGun(action.todo) : false
+            hasGun = hasGun || action.type === ADD_GOAL ? checkGun(action.goal) : false
+
+            return hasGun ? window.status = "Guns not allowed" : next(action)
+        }
+
         const store = Redux.createStore(Redux.combineReducers({todos, goals}), Redux.applyMiddleware(checker))
 
         unsub1 = store.subscribe(()=> {
@@ -172,19 +180,6 @@
 
         function addGoalToUi(goal) {
             addToUi(goal, 'goals', toggleGoal, removeGoal)
-        }
-
-        function checker() {
-            return function (next) {
-                return function (action) {
-                    const checkGun = (item) => item.title.toLowerCase().includes("gun")
-                    let hasGun = action.type === ADD_TODO ? checkGun(action.todo) : false
-                    hasGun = hasGun || action.type === ADD_GOAL ? checkGun(action.goal) : false
-
-                    return hasGun ? window.status = "Guns not allowed" : next(action)
-                }
-            }
-
         }
 
 
