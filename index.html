@@ -177,8 +177,9 @@
         }
 
         function checkAndDispatch(store, action) {
-            let hasGun = action.type === ADD_TODO ? action.todo.title.toLowerCase().includes("gun") : false
-            hasGun = hasGun || action.type === ADD_GOAL ? action.goal.title.toLowerCase().includes("gun") : false
+            const checkGun = (item) => item.title.toLowerCase().includes("gun")
+            let hasGun = action.type === ADD_TODO ? checkGun(action.todo) : false
+            hasGun = hasGun || action.type === ADD_GOAL ? checkGun(action.goal) : false
 
             hasGun ? window.status = "Guns not allowed" : store.dispatch(action)
         }
