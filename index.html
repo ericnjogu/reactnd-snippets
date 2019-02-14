@@ -146,10 +146,8 @@
 
         function addToUi(item, listId, toggleHandler, removeHandler) {
             const li = document.createElement('li')
-            if (item.complete) {
-                li.setAttribute('style', 'text-decoration:line-through')
-            }
-
+            li.style.display = 'inline-block'
+            li.style.textDecoration = item.complete ? 'line-through' : 'none'
             li.addEventListener('click', toggleHandler)
             const txt = document.createTextNode(item.title)
             li.appendChild(txt)
@@ -160,7 +158,7 @@
 
             const div = document.createElement('div')
             // credit - https://stackoverflow.com/a/24504887/315385
-            div.setAttribute('style', 'display: inline-block')
+            //div.setAttribute('style', 'display: inline-block')
             div.id = item.id
             div.appendChild(li)
             div.appendChild(btn)
