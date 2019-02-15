@@ -202,15 +202,21 @@
     </script>
 
     <script type="text/babel">
-        function ItemList(props) {
+        function Items(props) {
             return (
                 <ul>
-                    <li>list item 1</li>
+                    {props.items.map(item =>
+                        <li key={item.id}
+                            onClick={() => props.toggle(item.id)}
+                            style={{textDecoration : item.complete ? 'line-through' : 'none'}}>
+                            {item.title}&nbsp;<button onClick={() => props.remove(item.id)}>xXx</button>
+                        </li>
+                    )}
                 </ul>
             )
         }
 
-        class Item extends React.Component {
+        class ItemList extends React.Component {
             addItem = (e) => {
                 e.preventDefault()
                 const title = this.input.value
@@ -224,24 +230,58 @@
                 })
                 this.input.value = ''
             }
+
             render() {
                 return (
                     <div>
                         <h3>{this.props.item_title}s</h3>
                         <input id="todo" type="text" placeholder={`Add ${this.props.item_title}`} ref={(input) => this.input = input}/>
                         <button onClick={this.addItem} >Add {this.props.item_title}</button>
-                        <ItemList/>
+                        <Items items={this.props.items} toggle={this.props.toggle} remove={this.props.remove}/>
                     </div>
                 )
             }
         }
 
         class App extends React.Component {
+            componentDidMount() {
+                this.props.store.subscribe(() => this.forceUpdate())
+            }
+
+            toggleTodo = (id) => {
+                this.props.store.dispatch({
+                    type: TOGGLE_TODO,
+                    id:id
+                })
+            }
+
+            removeTodo = (id) => {
+                this.props.store.dispatch({
+                    type: REMOVE_TODO,
+                    id:id
+                })
+            }
+
+
+            toggleGoal = (id) => {
+                this.props.store.dispatch({
+                    type: TOGGLE_GOAL,
+                    id:id
+                })
+            }
+
+            removeGoal = (id) => {
+                this.props.store.dispatch({
+                    type: REMOVE_GOAL,
+                    id:id
+                })
+            }
+
             render() {
                 return (
                     <div>
-                        <Item store={this.props.store} add_action={ADD_TODO} item_key="todo" item_title="TODO"/>
-                        <Item store={this.props.store} add_action={ADD_GOAL} item_key="goal" item_title="Goal"/>
+                        <ItemList items={this.props.store.getState().todos} store={this.props.store} add_action={ADD_TODO} item_key="todo" item_title="TODO" toggle={this.toggleTodo} remove={this.removeTodo}/>
+                        <ItemList items={this.props.store.getState().goals} store={this.props.store} add_action={ADD_GOAL} item_key="goal" item_title="Goal" toggle={this.toggleGoal} remove={this.removeGoal}/>
                     </div>
                 )
             }
