@@ -210,15 +210,15 @@
             )
         }
 
-        class Todos extends React.Component {
+        class Item extends React.Component {
             addItem = (e) => {
                 e.preventDefault()
                 const title = this.input.value
                 this.props.store.dispatch({
-                    type: ADD_TODO,
-                    todo: {
+                    type: this.props.add_action,
+                    [this.props.item_key]: {
                         id:generateId(),
-                        title: title,
+                        title : title,
                         complete: false
                     }
                 })
@@ -227,20 +227,9 @@
             render() {
                 return (
                     <div>
-                        <h3>Todos</h3>
-                        <input id="todo" type="text" placeholder="Add TODO" ref={(input) => this.input = input}/>
-                        <button onClick={this.addItem} >Add Todo</button>
-                        <ItemList/>
-                    </div>
-                )
-            }
-        }
-
-        class Goals extends React.Component {
-            render() {
-                return (
-                    <div>
-                        GOALS
+                        <h3>{this.props.item_title}s</h3>
+                        <input id="todo" type="text" placeholder={`Add ${this.props.item_title}`} ref={(input) => this.input = input}/>
+                        <button onClick={this.addItem} >Add {this.props.item_title}</button>
                         <ItemList/>
                     </div>
                 )
@@ -251,8 +240,8 @@
             render() {
                 return (
                     <div>
-                        <Todos store={this.props.store}/>
-                        <Goals/>
+                        <Item store={this.props.store} add_action={ADD_TODO} item_key="todo" item_title="TODO"/>
+                        <Item store={this.props.store} add_action={ADD_GOAL} item_key="goal" item_title="Goal"/>
                     </div>
                 )
             }
