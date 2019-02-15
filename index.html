@@ -75,7 +75,16 @@
             return hasGun ? window.status = "Guns not allowed" : next(action)
         }
 
-        const store = Redux.createStore(Redux.combineReducers({todos, goals}), Redux.applyMiddleware(checker))
+        const logger = (store) => (next) => (action) => {
+            console.group(action.type)
+            console.log('The action: ', action)
+            const result = next(action)
+            console.log('New state: ', store.getState())
+            console.groupEnd()
+            return result
+        }
+
+        const store = Redux.createStore(Redux.combineReducers({todos, goals}), Redux.applyMiddleware(checker, logger))
 
         unsub1 = store.subscribe(()=> {
             document.getElementById('todos').innerHTML = ''
