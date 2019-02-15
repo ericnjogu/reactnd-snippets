@@ -10,20 +10,7 @@
 
 </head>
 <body>
-    <div>
-        <h3>Todos</h3>
-        <input id="todo" type="text" placeholder="Add TODO"/>
-        <button id="todoBtn">Add Todo</button>
-        <ul id="todos"></ul>
-    </div>
-    <div>
-        <h3>Goals</h3>
-        <input id="goal" type="text" placeholder="Add Goal"/>
-        <button id="goalBtn">Add Goal</button>
-        <ul id="goals"></ul>
-    </div>
 
-    <hr/>
     <div id="app"></div>
 
     <script type="text/javascript">
@@ -92,112 +79,6 @@
         }
 
         const store = Redux.createStore(Redux.combineReducers({todos, goals}), Redux.applyMiddleware(checker, logger))
-
-        unsub1 = store.subscribe(()=> {
-            document.getElementById('todos').innerHTML = ''
-            document.getElementById('goals').innerHTML = ''
-
-            const {goals, todos} = store.getState()
-            todos.forEach(addToDoToUi)
-            goals.forEach(addGoalToUi)
-        })
-
-        function addTodo() {
-            const input = document.getElementById('todo');
-            const todo = input.value
-            store.dispatch({
-                type: ADD_TODO,
-                todo: {
-                    id:generateId(),
-                    title: todo,
-                    complete: false
-                }
-            })
-            input.value = ''
-
-        }
-
-        function addGoal() {
-            const input = document.getElementById('goal');
-            const goal = input.value
-            store.dispatch({
-                type: ADD_GOAL,
-                goal: {
-                    id:generateId(),
-                    title: goal,
-                    complete: false
-                }
-            })
-            input.value = ''
-
-        }
-
-        document.getElementById('todoBtn').addEventListener('click', addTodo)
-        document.getElementById('goalBtn').addEventListener('click', addGoal)
-
-        function toggleTodo() {
-            const id = this.parentElement.id
-            store.dispatch({
-                type: TOGGLE_TODO,
-                id:id
-            })
-        }
-
-        function removeTodo() {
-            const id = this.parentElement.id
-            store.dispatch({
-                type: REMOVE_TODO,
-                id:id
-            })
-        }
-
-
-        function toggleGoal() {
-            const id = this.parentElement.id
-            store.dispatch({
-                type: TOGGLE_GOAL,
-                id:id
-            })
-        }
-
-        function removeGoal() {
-            const id = this.parentElement.id
-            store.dispatch({
-                type: REMOVE_GOAL,
-                id:id
-            })
-        }
-
-        function addToUi(item, listId, toggleHandler, removeHandler) {
-            const li = document.createElement('li')
-            li.style.display = 'inline-block'
-            li.style.textDecoration = item.complete ? 'line-through' : 'none'
-            li.addEventListener('click', toggleHandler)
-            const txt = document.createTextNode(item.title)
-            li.appendChild(txt)
-
-            const btn = document.createElement('button');
-            btn.appendChild(document.createTextNode('xXx'))
-            btn.addEventListener('click', removeHandler)
-
-            const div = document.createElement('div')
-            // credit - https://stackoverflow.com/a/24504887/315385
-            //div.setAttribute('style', 'display: inline-block')
-            div.id = item.id
-            div.appendChild(li)
-            div.appendChild(btn)
-
-            document.getElementById(listId).appendChild(div)
-        }
-
-        function addToDoToUi(todo) {
-            addToUi(todo, 'todos', toggleTodo, removeTodo)
-        }
-
-        function addGoalToUi(goal) {
-            addToUi(goal, 'goals', toggleGoal, removeGoal)
-        }
-
 
     </script>
 
