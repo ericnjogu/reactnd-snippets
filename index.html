@@ -67,6 +67,14 @@
             }
         }
 
+        function loading(state = true, action) {
+            if (action.type === RECEIVE_DATA) {
+                return false
+            } else {
+                return state
+            }
+        }
+
         const checker = (store) => (next) => (action) => {
             const checkGun = (item) => item.name.toLowerCase().includes("gun")
             let hasGun = action.type === ADD_TODO ? checkGun(action.todo) : false
@@ -84,7 +92,7 @@
             return result
         }
 
-        const store = Redux.createStore(Redux.combineReducers({todos, goals}), Redux.applyMiddleware(checker, logger))
+        const store = Redux.createStore(Redux.combineReducers({todos, goals, loading}), Redux.applyMiddleware(checker, logger))
 
     </script>
 
@@ -151,21 +159,6 @@
                     })
                     }
                 )
-
-                /*API.fetchGoals().then((goals) => {
-                    console.log("goals from API", goals)
-                    goals.map(goal => {
-                        this.props.store.dispatch({
-                            type: ADD_GOAL,
-                            goal    : {
-                                id:generateId(),
-                                name : goal.name,
-                                complete: false
-                            }
-                        })
-                    })
-                })*/
-
             }
 
             toggleTodo = (id) => {
@@ -198,10 +191,14 @@
             }
 
             render() {
+                const {todos, goals, loading} = this.props.store.getState()
+                if (loading) {
+                    return <h3>loading...</h3>
+                }
                 return (
                     <div>
-                        <ItemList items={this.props.store.getState().todos} store={this.props.store} add_action={ADD_TODO} item_key="todo" item_title="TODO" toggle={this.toggleTodo} remove={this.removeTodo}/>
-                        <ItemList items={this.props.store.getState().goals} store={this.props.store} add_action={ADD_GOAL} item_key="goal" item_title="Goal" toggle={this.toggleGoal} remove={this.removeGoal}/>
+                        <ItemList items={todos} store={this.props.store} add_action={ADD_TODO} item_key="todo" item_title="TODO" toggle={this.toggleTodo} remove={this.removeTodo}/>
+                        <ItemList items={goals} store={this.props.store} add_action={ADD_GOAL} item_key="goal" item_title="Goal" toggle={this.toggleGoal} remove={this.removeGoal}/>
                     </div>
                 )
             }
