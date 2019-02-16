@@ -7,6 +7,7 @@
     <script src="https://unpkg.com/react@16.3.0-alpha.1/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@16.3.0-alpha.1/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    <script src="https://tylermcginnis.com/goals-todos-api/index.js"></script>
 
 </head>
 <body>
@@ -62,7 +63,7 @@
         }
 
         const checker = (store) => (next) => (action) => {
-            const checkGun = (item) => item.title.toLowerCase().includes("gun")
+            const checkGun = (item) => item.name.toLowerCase().includes("gun")
             let hasGun = action.type === ADD_TODO ? checkGun(action.todo) : false
             hasGun = hasGun || action.type === ADD_GOAL ? checkGun(action.goal) : false
 
@@ -90,7 +91,7 @@
                         <li key={item.id}
                             onClick={() => props.toggle(item.id)}
                             style={{textDecoration : item.complete ? 'line-through' : 'none'}}>
-                            {item.title}&nbsp;<button onClick={() => props.remove(item.id)}>xXx</button>
+                            {item.name}&nbsp;<button onClick={() => props.remove(item.id)}>xXx</button>
                         </li>
                     )}
                 </ul>
@@ -100,12 +101,12 @@
         class ItemList extends React.Component {
             addItem = (e) => {
                 e.preventDefault()
-                const title = this.input.value
+                const name = this.input.value
                 this.props.store.dispatch({
                     type: this.props.add_action,
                     [this.props.item_key]: {
                         id:generateId(),
-                        title : title,
+                        name : name,
                         complete: false
                     }
                 })
@@ -125,8 +126,38 @@
         }
 
         class App extends React.Component {
+
+
             componentDidMount() {
                 this.props.store.subscribe(() => this.forceUpdate())
+
+                API.fetchTodos().then((todos) => {
+                    console.log("todos from API", todos)
+                    todos.map(todo => {
+                        this.props.store.dispatch({
+                            type: ADD_TODO,
+                            todo: {
+                                id:generateId(),
+                                name : todo.name,
+                                complete: false
+                            }
+                        })
+                    })
+                })
+
+                API.fetchGoals().then((goals) => {
+                    console.log("goals from API", goals)
+                    goals.map(goal => {
+                        this.props.store.dispatch({
+                            type: ADD_GOAL,
+                            goal    : {
+                                id:generateId(),
+                                name : goal.name,
+                                complete: false
+                            }
+                        })
+                    })
+                })
             }
 
             toggleTodo = (id) => {
