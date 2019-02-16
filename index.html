@@ -162,9 +162,14 @@
             }
 
             toggleTodo = (id) => {
-                this.props.store.dispatch({
+                const toggle = (idArg) => this.props.store.dispatch({
                     type: TOGGLE_TODO,
-                    id:id
+                    id:idArg
+                })
+                toggle(id)
+                API.saveTodoToggle(id).catch(() => {
+                    alert('toggle todo failed')
+                    toggle(id)
                 })
             }
 
