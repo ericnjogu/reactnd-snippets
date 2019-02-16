@@ -22,6 +22,7 @@
         const ADD_TODO = 'ADD_TODO';
         const REMOVE_TODO = 'REMOVE_TODO'
         const TOGGLE_TODO = 'TOGGLE_TODO'
+        const RECEIVE_DATA = "RECEIVE_DATA"
 
         // pure function (reducer) to modify and return new state
         function todos(state = [], action) {
@@ -38,6 +39,8 @@
                         }
                         return todo
                     })
+                case RECEIVE_DATA:
+                    return action.todos
                 default:
                     return state
             }
@@ -57,6 +60,8 @@
                     return state.filter(goal => goal.id !== action.id)
                 case TOGGLE_GOAL:
                     return state.map(goal => goal.id === action.id ? Object.assign({}, goal, {complete: !goal.complete}) : goal)
+                case RECEIVE_DATA:
+                    return action.goals
                 default:
                     return state
             }
@@ -129,23 +134,25 @@
 
 
             componentDidMount() {
+
                 this.props.store.subscribe(() => this.forceUpdate())
 
-                API.fetchTodos().then((todos) => {
+                Promise.all([
+                    API.fetchGoals(),
+                    API.fetchTodos()
+                    ]
+                ).then(([goals, todos]) => {
+                    console.log("goals from API", goals)
                     console.log("todos from API", todos)
-                    todos.map(todo => {
-                        this.props.store.dispatch({
-                            type: ADD_TODO,
-                            todo: {
-                                id:generateId(),
-                                name : todo.name,
-                                complete: false
-                            }
-                        })
+                    this.props.store.dispatch({
+                        type: RECEIVE_DATA,
+                        goals,
+                        todos
                     })
-                })
+                    }
+                )
 
-                API.fetchGoals().then((goals) => {
+                /*API.fetchGoals().then((goals) => {
                     console.log("goals from API", goals)
                     goals.map(goal => {
                         this.props.store.dispatch({
@@ -157,7 +164,8 @@
                             }
                         })
                     })
-                })
+                })*/
+
             }
 
             toggleTodo = (id) => {
