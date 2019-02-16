@@ -104,7 +104,7 @@
                         <li key={item.id}
                             onClick={() => props.toggle(item.id)}
                             style={{textDecoration : item.complete ? 'line-through' : 'none'}}>
-                            {item.name}&nbsp;<button onClick={() => props.remove(item.id)}>xXx</button>
+                            {item.name}&nbsp;<button onClick={() => props.remove(item)}>xXx</button>
                         </li>
                     )}
                 </ul>
@@ -168,10 +168,17 @@
                 })
             }
 
-            removeTodo = (id) => {
+            removeTodo = (todo) => {
                 this.props.store.dispatch({
                     type: REMOVE_TODO,
-                    id:id
+                    id:todo.id
+                })
+                API.deleteTodo(todo.id).catch(() => {
+                    alert('Failed to delete todo')
+                    this.props.store.dispatch({
+                        type: ADD_TODO,
+                        todo
+                    })
                 })
             }
 
@@ -183,12 +190,22 @@
                 })
             }
 
-            removeGoal = (id) => {
+            removeGoal = (goal) => {
                 this.props.store.dispatch({
                     type: REMOVE_GOAL,
-                    id:id
+                    id:goal.id
+                })
+
+                API.deleteGoal(goal.id).catch(() => {
+                    alert('Failed to delete goal')
+                    this.props.store.dispatch({
+                        type: ADD_GOAL,
+                        goal
+                    })
                 })
             }
+
+
 
             render() {
                 const {todos, goals, loading} = this.props.store.getState()
