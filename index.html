@@ -19,6 +19,7 @@
             return Math.random().toString(36).substring(2) + new Date().getTime().toString(36)
         }
 
+        /** start reducers */
         const ADD_TODO = 'ADD_TODO';
         const REMOVE_TODO = 'REMOVE_TODO'
         const TOGGLE_TODO = 'TOGGLE_TODO'
@@ -75,6 +76,9 @@
             }
         }
 
+        /** end reducers */
+
+        /** start middleware **/
         const checker = (store) => (next) => (action) => {
             const checkGun = (item) => item.name.toLowerCase().includes("gun")
             let hasGun = action.type === ADD_TODO ? checkGun(action.todo) : false
@@ -91,6 +95,8 @@
             console.groupEnd()
             return result
         }
+
+        /** end middleware **/
 
         const store = Redux.createStore(Redux.combineReducers({todos, goals, loading}), Redux.applyMiddleware(checker, logger))
 
@@ -115,15 +121,21 @@
             addItem = (e) => {
                 e.preventDefault()
                 const name = this.input.value
-                this.props.store.dispatch({
-                    type: this.props.add_action,
-                    [this.props.item_key]: {
-                        id:generateId(),
-                        name : name,
-                        complete: false
-                    }
-                })
-                this.input.value = ''
+                const save = this.props.add_action === ADD_TODO ? API.saveTodo : API.saveGoal
+                save(name).then(() => {
+                    this.props.store.dispatch({
+                        type: this.props.add_action,
+                        [this.props.item_key]: {
+                            id:generateId(),
+                            name : name,
+                            complete: false
+                        }
+                    })
+                    this.input.value = ''
+                }).catch(
+                    alert('could not add item, please retry')
+                )
+
             }
 
             render() {
@@ -186,7 +198,6 @@
                     })
                 })
             }
-
 
             toggleGoal = (id) => {
                 this.props.store.dispatch({
