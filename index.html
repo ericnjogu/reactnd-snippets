@@ -19,7 +19,7 @@
             return Math.random().toString(36).substring(2) + new Date().getTime().toString(36)
         }
 
-        /** start reducers */
+        /* start reducers */
         const ADD_TODO = 'ADD_TODO';
         const REMOVE_TODO = 'REMOVE_TODO'
         const TOGGLE_TODO = 'TOGGLE_TODO'
@@ -76,9 +76,9 @@
             }
         }
 
-        /** end reducers */
+        /* end reducers */
 
-        /** start middleware **/
+        /* start middleware */
         const checker = (store) => (next) => (action) => {
             const checkGun = (item) => item.name.toLowerCase().includes("gun")
             let hasGun = action.type === ADD_TODO ? checkGun(action.todo) : false
@@ -96,7 +96,51 @@
             return result
         }
 
-        /** end middleware **/
+        /* end middleware */
+
+        /* start action creators*/
+        function removeTodoAction(id) {
+            return {
+                type: REMOVE_TODO,
+                id: id
+            }
+        }
+
+        function addTodoAction(todo) {
+            return {
+                type: ADD_TODO,
+                todo
+            }
+        }
+
+        function toggleTodoAction(id) {
+            return {
+                type: TOGGLE_TODO,
+                id:id
+            }
+        }
+
+        function toggleGoalAction(id) {
+            return {
+                type: TOGGLE_GOAL,
+                id:id
+            }
+        }
+
+        function removeGoalAction(id) {
+            return {
+                type: REMOVE_GOAL,
+                id:id
+            }
+        }
+
+        function addGoalAction(goal) {
+            return {
+                type: ADD_GOAL,
+                goal
+            }
+        }
+        /* end action creators*/
 
         const store = Redux.createStore(Redux.combineReducers({todos, goals, loading}), Redux.applyMiddleware(checker, logger))
 
@@ -122,15 +166,15 @@
                 e.preventDefault()
                 const name = this.input.value
                 const save = this.props.add_action === ADD_TODO ? API.saveTodo : API.saveGoal
+                const addAction = this.props.add_action === ADD_TODO ? addTodoAction : addGoalAction
                 save(name).then(() => {
-                    this.props.store.dispatch({
-                        type: this.props.add_action,
+                    this.props.store.dispatch(addAction({
                         [this.props.item_key]: {
                             id:generateId(),
                             name : name,
                             complete: false
                         }
-                    })
+                    }))
                     this.input.value = ''
                 }).catch(
                     alert('could not add item, please retry')
@@ -174,10 +218,7 @@
             }
 
             toggleTodo = (id) => {
-                const toggle = (idArg) => this.props.store.dispatch({
-                    type: TOGGLE_TODO,
-                    id:idArg
-                })
+                const toggle = (idArg) => this.props.store.dispatch(toggleTodoAction(idArg))
                 toggle(id)
                 API.saveTodoToggle(id).catch(() => {
                     alert('toggle todo failed')
@@ -186,38 +227,23 @@
             }
 
             removeTodo = (todo) => {
-                this.props.store.dispatch({
-                    type: REMOVE_TODO,
-                    id:todo.id
-                })
+                this.props.store.dispatch(removeTodoAction(todo.id))
                 API.deleteTodo(todo.id).catch(() => {
                     alert('Failed to delete todo')
-                    this.props.store.dispatch({
-                        type: ADD_TODO,
-                        todo
-                    })
+                    this.props.store.dispatch(addTodoAction(todo))
                 })
             }
 
             toggleGoal = (id) => {
-                this.props.store.dispatch({
-                    type: TOGGLE_GOAL,
-                    id:id
-                })
+                this.props.store.dispatch(toggleGoalAction(id))
             }
 
             removeGoal = (goal) => {
-                this.props.store.dispatch({
-                    type: REMOVE_GOAL,
-                    id:goal.id
-                })
+                this.props.store.dispatch(removeGoalAction(goal.id))
 
                 API.deleteGoal(goal.id).catch(() => {
                     alert('Failed to delete goal')
-                    this.props.store.dispatch({
-                        type: ADD_GOAL,
-                        goal
-                    })
+                    this.props.store.dispatch(addGoalAction(goal))
                 })
             }
 
